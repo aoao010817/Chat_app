@@ -26,7 +26,9 @@ func main() {
 	var addr = flag.String("addr", ":8080", "アプリケーションのアドレス")
 	flag.Parse() //フラグ解釈
 	r := newRoom()
-	http.Handle("/", &templateHandler{filename: "chat.html"})
+	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
+	http.Handle("/login", &templateHandler{filename: "login.html"})
+	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
 
 	go r.run() //チャットルームを開始
@@ -36,3 +38,6 @@ func main() {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
+
+// clientID: 62410808419-ttid6l47fc1gqvfb11flpjui9jrgd6l0.apps.googleusercontent.com
+// seclet: TguyYcJDEYZXaHJfFNglSy9E
