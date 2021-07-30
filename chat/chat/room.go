@@ -5,11 +5,12 @@ import (
 	"log"
 	"github.com/gorilla/websocket"
 	"study/golang/chat/trace"
+	"github.com/stretchr/objx"
 )
 
 
 type room struct {
-	forward chan []byte      //他のクライアントに転送するためのメッセージを保持するチャネル
+	forward chan *message      //他のクライアントに転送するためのメッセージを保持するチャネル
 	join    chan *client     //参加しようとしているクライアント
 	leave   chan *client     //退室しようとしているクライアント
 	clients map[*client]bool //在室しているすべてのクライアント
@@ -18,7 +19,7 @@ type room struct {
 
 func newRoom() *room { //すぐに利用できるチャットルームを返す
 	return &room{
-		forward: make(chan []byte),
+		forward: make(chan *message),
 		join: make(chan *client),
 		leave: make(chan *client),
 		clients: make(map[*client]bool),
@@ -37,7 +38,7 @@ func (r *room) run() {
 			close(client.send) //退室
 			r.tracer.Trace("クライアントが退室しました")
 		case msg := <-r.forward:
-			r.tracer.Trace("メッセージを受信しました")
+			r.tracer.Trace("メッセージを受信しました: ", msg.Message)
 			for client := range r.clients { //すべてのクライアントにメッセージを送信
 				select {
 				case client.send <- msg: //メッセージを送信
@@ -65,10 +66,17 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("SeaveHTTP:", err)
 		return
 	}
+
+	authCookie, err := req.Cookie("auth")
+	if err != nil {
+		log.Fatal("クッキーの取得に失敗しました: ", err)
+		return
+	}
 	client := &client{
 		socket: socket,
-		send: make(chan []byte, messageBufferSize),
+		send: make(chan *message, messageBufferSize),
 		room: r,
+		userData: objx.MustFromBase64(authCookie.Value),
 	}
 	r.join <- client
 	defer func() {r.leave <- client}()
