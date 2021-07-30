@@ -1,24 +1,36 @@
 <html>
     <head>
         <title>チャット</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
         <style>
-            input {
-                display: block;
-            }
-            ul {
+            ul#messages {
                 list-style: none;
+            }
+            ul#messages li{
+                margin-bottom: 2px; 
+            }
+            ul#messages li img{
+                margin-right: 10px;
             }
         </style>
     </head>
     <body>
-        <ul id="messages"></ul>
-        WebSocketを用いたチャット
-        <form id="chatbox">
-            {{.UserData.name}}:<br/>
-            <textarea></textarea>
-            <input type="submit" value="送信">
-            <a href="/logout">サインアウト</a>
-        </form>
+        <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <ul id="messages"></ul>
+                </div>
+            </div>
+            <form id="chatbox">
+                <div class="form-group">
+                    <label for="message">{{.UserData.name}}からメッセージを送信</label><a href="/logout">サインアウト</a><br>
+                    <textarea id="message"></textarea>
+                </div>
+                <input type="submit" value="送信" class="tbn btn-default">
+                
+            </form>
+        </div>
+        
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script>
             $(function() {
@@ -48,11 +60,10 @@
                         var msg = eval("("+e.data+")");
                         messages.append(
                             $("<li>").append(
-                                $("<img>").css({
+                                $("<img>").attr("title", msg.Name).css({
                                     width:50,
                                     verticalAlign: "middle"
                                 }).attr("src", msg.AvatarURL),
-                                $("<strong>").text(msg.Name + ": "), 
                                 $("<span>").text(msg.Message)
                             )
                         );
