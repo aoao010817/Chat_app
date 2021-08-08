@@ -43,7 +43,7 @@ func main() {
 		github.New("クライアントID", "秘密の鍵", "http:localhost:8080/auth/callback/github"),
 		google.New("62410808419-ttid6l47fc1gqvfb11flpjui9jrgd6l0.apps.googleusercontent.com", "TguyYcJDEYZXaHJfFNglSy9E", "http://localhost:8080/auth/callback/google"),
 	)
-	r := newRoom(UseGravatar)
+	r := newRoom(UseFileSystemAvatar)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
@@ -60,7 +60,7 @@ func main() {
 	})
 	http.Handle("/upload", &templateHandler{filename: "upload.html"})
 	http.HandleFunc("/uploader", uploaderHandler)
-	http.Handle("avatars/",http.StripPrefix("/avatars", http.FileServer(http.Dir("./avatars"))))
+	http.Handle("/avatars/",http.StripPrefix("/avatars/", http.FileServer(http.Dir("./avatars/"))))
 	go r.run() //チャットルームを開始
 
 	log.Println("Webサーバを開始します。ポート: ", *addr)

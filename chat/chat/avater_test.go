@@ -27,3 +27,21 @@ func TestGravatarAvatar(t *testing.T) {
 		t.Errorf("GravatarAvatar.GetAvatarURLが%sという値を返しました", url)
 	}
 }
+
+func TestFileSystemAvatar(t *testing.T) {
+	//テスト用アバターファイル生成
+	filename := filepath.Join("avatars", "abc.jpg")
+	ioutil.WriteFile(filename, []byte{}, 0777)
+	defer func() {os.Remove(filename)}()
+
+	var fileSystemAvatar FileSystemAvatar
+	client := new(client)
+	client.userData = map[string]interface{}{"userid": "abc"}
+	url, err := fileSystemAvatar.GetAvatarURL(client)
+	if err != nil {
+		t.Error("FileSystemAvatar.GetAvatarURLはエラーを返すべきではありません")
+	}
+	if url != "/avatars/abc.jpg" {
+		t.Errorff("FileSystemAvatar.GetAvatarURLが%sといった誤った値を返しました", url)
+	}
+}
