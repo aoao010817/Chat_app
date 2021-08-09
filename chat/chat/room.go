@@ -15,17 +15,15 @@ type room struct {
 	leave   chan *client     //退室しようとしているクライアント
 	clients map[*client]bool //在室しているすべてのクライアント
 	tracer trace.Tracer
-	avatar Avatar
 }
 
-func newRoom(avatar Avatar) *room { //すぐに利用できるチャットルームを返す
+func newRoom() *room { //すぐに利用できるチャットルームを返す
 	return &room{
 		forward: make(chan *message),
 		join: make(chan *client),
 		leave: make(chan *client),
 		clients: make(map[*client]bool),
 		tracer: trace.Off(),
-		avatar: avatar,
 	}
 }
 
