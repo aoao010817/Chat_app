@@ -2,16 +2,24 @@ package main
 import  "testing"
 func TestAuthAvatar(t *testing.T) {
 	var authAvatar AuthAvatar
-	client := new(client)
-	url, err := authAvatar.GetAvatarURL(client)
+	testUser := &gomniauthtest.TestUser{}
+	testUser.On("AvatarURL").Return("", ErrNoAvatarURL)
+	testChatUser := &chatUsser{User: TestUser}
+	url, err := authAvatar.GetAvatarURL(testChatUser)
 	if err != ErrNoAvatarURL {
 		t.Error("値が存在しない場合、AuthAvatar.GetAvatarURLはErrNoAvatarURLを返します。")
 	}
 	testUrl := "http://url-to-avatar"
-	client.userData = map[string]interface{}{"avatar_url": testUrl} 
-	url, err = authAvatar.GetAvatarURL(client)
+	testUser = &gomniauthtest.TestUser{}
+	testChatUser.User = testUser
+	testUser.On("AvatarURL").Return(testUrl, nil)
+	url, err = authAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("AuthAvatar.GetAvatarURLは正しいURLを返すべきです")
+	} else {
+		if url != testUrl {
+			t.Error("AuthAvatar.GetAvatarURLは正しいURLを返すべきです")
+		}
 	}
 }
 
